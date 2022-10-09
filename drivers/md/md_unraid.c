@@ -928,22 +928,22 @@ int md_write_error(mddev_t *mddev, int disk_number, sector_t sector)
         return update_sb;
 }
 
-static void md_submit_bio(struct bio *bi)
+static void md_submit_bio(struct bio *bio)
 {
-        mddev_t *mddev = bi->bi_bdev->bd_disk->private_data;
-        int unit = bi->bi_bdev->bd_disk->first_minor;
+        mddev_t *mddev = bio->bi_bdev->bd_disk->private_data;
+        int unit = bio->bi_bdev->bd_disk->first_minor;
         mdp_disk_t *disk = &mddev->sb.disks[unit];
 
         /* verify this unit is active */
         if (!disk_active(disk)) {
-                bio_io_error(bi);
+                bio_io_error(bio);
                 return;
         }
         
-        blk_queue_split(&bi);
-        bi->bi_opf &= ~REQ_NOMERGE;
+        bio = bio_split_to_limits(bio);
+        bio->bi_opf &= ~REQ_NOMERGE;
 
-        unraid_make_request(mddev, unit, bi);
+        unraid_make_request(mddev, unit, bio);
 }
 
 static int md_open(struct block_device *bdev, fmode_t mode)
@@ -1071,7 +1071,7 @@ static int do_stop(mddev_t *mddev)
 			printk("md%d: stopping\n", unit);
 
 			del_gendisk(gd);
-			blk_cleanup_disk(gd);
+			put_disk(gd);
 
 			mddev->gendisk[unit] = NULL;
 		}
