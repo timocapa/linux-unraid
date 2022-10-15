@@ -11,31 +11,32 @@ read -r -p "Select compiler: clang or gcc (c/g) " compiler;
 case $compiler in
     c|C)
         echo 'Building bzImage and modules with clang'
-	    sleep '1'
-	    LLVM=1 make -j"$NPROC" bzImage
-	    LLVM=1 make -j"$NPROC"
-	    LLVM=1 make -j"$NPROC" modules
+            sleep '1'
+            LLVM=1 make -j"$NPROC" unraid_defconfig
+            LLVM=1 make -j"$NPROC" bzImage
+            LLVM=1 make -j"$NPROC" modules
 
-	echo 'Installing modules'
-	    sleep '1'
-	    make "$TEMP" -j"$NPROC" modules_install
-        ;;
+        echo 'Installing modules'
+            sleep '1'
+            make "$TEMP" -j"$NPROC" modules_install
+    ;;
 
     g|G)
         echo 'Bulding bzImage and modules with gcc'
-	    sleep '1'
-	    make -j"$NPROC" bzImage
-	    make -j"$NPROC"
-	    make -j"$NPROC" modules
-	
-	echo 'Installing modules'
-	    sleep '1'
-	    make "$TEMP" -j"$NPROC" modules_install
-        ;;
+            sleep '1'
+            make -j"$NPROC" unraid_defconfig
+            make -j"$NPROC" bzImage
+            make -j"$NPROC" modules
+
+        echo 'Installing modules'
+            sleep '1'
+            make "$TEMP" -j"$NPROC" modules_install
+    ;;
 
     *)
-        exit
-        ;;
+        echo 'Invalid input'
+    exit
+    ;;
 esac
 
 echo 'Creating unRAID folder in your home dir if it doesnt exist...'
@@ -57,18 +58,20 @@ sha256sum "$UNRAID"/bzimage | cut -d " " -f 1 > "$UNRAID"/bzimage.sha256
 read -r -p "Do you wish to clean up? (y/n) " clean;
 case $clean in
     y|Y)
-	echo 'Cleaning up modules...'
-	    rm -r "$CLEAN"
-	echo 'Cleaning the kernel...'
-	    make clean
-        ;;
+        echo 'Cleaning up modules...'
+            rm -r "$CLEAN"
+        echo 'Cleaning the kernel...'
+            make clean
+            make mrproper
+    ;;
 
     n|N)
-	echo 'Skipping'
-	    exit
-        ;;
+        echo 'Skipping'
+    exit
+    ;;
 
     *)
-        exit
-        ;;
+        echo 'Invalid input'
+    exit
+    ;;
 esac
