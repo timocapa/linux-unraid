@@ -18,7 +18,8 @@ case $compiler in
 
 	echo 'Installing modules'
 	    sleep '1'
-	    make "$TEMP" -j"$NPROC" modules_install;;
+	    make "$TEMP" -j"$NPROC" modules_install
+        ;;
 
     g|G)
         echo 'Bulding bzImage and modules with gcc'
@@ -29,10 +30,12 @@ case $compiler in
 	
 	echo 'Installing modules'
 	    sleep '1'
-	    make "$TEMP" -j"$NPROC" modules_install;;
+	    make "$TEMP" -j"$NPROC" modules_install
+        ;;
 
     *)
-        exit;;
+        exit
+        ;;
 esac
 
 echo 'Creating unRAID folder in your home dir if it doesnt exist...'
@@ -51,5 +54,21 @@ sleep '1'
 sha256sum "$UNRAID"/bzmodules | cut -d " " -f 1 > "$UNRAID"/bzmodules.sha256
 sha256sum "$UNRAID"/bzimage | cut -d " " -f 1 > "$UNRAID"/bzimage.sha256
 
-# cleanup
-rm -r "$CLEAN"
+read -r -p "Do you wish to clean up? (y/n) " clean;
+case $clean in
+    y|Y)
+	echo 'Cleaning up modules...'
+	    rm -r "$CLEAN"
+	echo 'Cleaning the kernel...'
+	    make clean
+        ;;
+
+    n|N)
+	echo 'Skipping'
+	    exit
+        ;;
+
+    *)
+        exit
+        ;;
+esac
