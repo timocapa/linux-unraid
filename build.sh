@@ -16,7 +16,7 @@ case $compiler in
     c|C)
         echo -e '\e[93mBuilding bzImage and modules with clang\e[0m'
             sleep '1'
-            LLVM=1 make -j"$NPROC" unraid_defconfig
+            LLVM=1 make -j"$NPROC" unraid-llvm_defconfig
             LLVM=1 make -j"$NPROC" bzImage
             LLVM=1 make -j"$NPROC" modules
 
